@@ -25,8 +25,8 @@
 #   make showver        will show the current release tag based on the directory content
 #
 #
-REGISTRY_HOST=docker.io
-USERNAME=jtulak
+REGISTRY_HOST=DO.NOT.PUSH
+USERNAME=foo
 NAME=$(shell basename $(PWD))
 BUILD_OPTS=
 
