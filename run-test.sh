@@ -6,6 +6,7 @@ NOCOPY=0
 CLEAN=0
 WORKDIR="/workdir"
 XFSPROGS="/xfsprogs"
+OUTPUTDIR="/output"
 
 function usage() {
 	echo "Usage: $0 [-h] [-i] [-n] [-c]"
@@ -50,10 +51,13 @@ if [ $INTERACTIVE -eq 0 ]; then
 	if [ $CLEAN -eq 1 ]; then
 		echo "make clean..."
 		make clean &>/dev/null
+		rm -rf cov
 		echo
 	fi
-	echo "csbuild -c make..."
-	csbuild -c make
+	echo "cov-build --dir=./cov make..."
+	/opt/coverity/bin/cov-build --dir=$OUTPUTDIR/cov make
+	echo "cov-analyze --dir=./cov --wait-for-license"
+	/opt/coverity/bin/cov-analyze --dir=$OUTPUTDIR/cov --wait-for-license
 else
 	exec /bin/bash
 fi

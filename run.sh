@@ -51,5 +51,6 @@ docker run \
 	--rm \
 	-ti \
 	-v "$DIR":/workdir \
-	-h $NAME \
-	jtulak/$NAME $OPTS
+	-v $(realpath "./"):/output \
+	-h $NAME.jtulak.brq.redhat.com \
+	DO.NOT.PUSH/jtulak/$NAME $OPTS

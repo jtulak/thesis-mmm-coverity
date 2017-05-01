@@ -15,8 +15,14 @@ RUN dnf -y install \
            cov-sa87 \
            csbuild
 
+RUN mv /usr/bin/cppcheck /usr/bin/cppcheck.disabled
+
+RUN echo "PATH=$PATH:/opt/coverity/bin" > /etc/profile.d/coverity.sh
+
 workdir /workdir
 volume /workdir
+workdir /output
+volume /output
 
 ADD run-test.sh /
 ENTRYPOINT ["/bin/bash","/run-test.sh"]
