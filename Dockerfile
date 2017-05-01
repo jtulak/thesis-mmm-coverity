@@ -19,4 +19,4 @@ workdir /workdir
 volume /workdir
 
 ADD run-test.sh /
-ENTRYPOINT ["/bin/bash","/run-test.sh", "/workdir"]
+ENTRYPOINT ["/bin/bash","/run-test.sh"]
