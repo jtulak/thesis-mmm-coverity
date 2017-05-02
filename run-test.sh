@@ -58,6 +58,7 @@ if [ $INTERACTIVE -eq 0 ]; then
 	/opt/coverity/bin/cov-build --dir=$OUTPUTDIR/cov make
 	echo "cov-analyze --dir=./cov --wait-for-license"
 	/opt/coverity/bin/cov-analyze --dir=$OUTPUTDIR/cov --wait-for-license
+	chmod -R a+w $OUTPUTDIR
 else
 	exec /bin/bash
 fi
