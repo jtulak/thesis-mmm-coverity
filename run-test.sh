@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-set -euo pipefail
 
 INTERACTIVE=0
 NOCOPY=0
@@ -58,7 +57,21 @@ if [ $INTERACTIVE -eq 0 ]; then
 	/opt/coverity/bin/cov-build --dir=$OUTPUTDIR/cov make
 	echo "cov-analyze --dir=./cov --wait-for-license"
 	/opt/coverity/bin/cov-analyze --dir=$OUTPUTDIR/cov --wait-for-license
-	chmod -R a+w $OUTPUTDIR
+	mkdir $OUTPUTDIR/cov/html
+	echo "Formating HTML output"
+	/opt/coverity/bin/cov-format-errors \
+		--dir=$OUTPUTDIR/cov \
+		--html-output=$OUTPUTDIR/cov/html
+	echo "Formating text output"
+	/opt/coverity/bin/cov-format-errors \
+		--dir=$OUTPUTDIR/cov \
+		--emacs-style
+	echo "Formating json output"
+	/opt/coverity/bin/cov-format-errors \
+		--dir=$OUTPUTDIR/cov \
+		--json-output-v6=$OUTPUTDIR/cov/json
+
+	chmod -R a+w $OUTPUTDIR/cov
 else
 	exec /bin/bash
 fi
