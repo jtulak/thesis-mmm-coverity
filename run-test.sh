@@ -15,6 +15,50 @@ function usage() {
 	exit 1
 }
 
+function run_coverity_analysis() {
+	level=$1
+	if [ "$level" != "low" -a "$level" != "medium" -a "$level" != "high" -a "$level" != "custom" ]; then
+		echo "Unknown level of analysis: $level"
+		exit 1
+	fi
+
+	if [ "$level" = "custom" ];then
+		echo "cov-analyze --dir=./cov \\"
+		echo "            --wait-for-license \\"
+		echo "            --aggressiveness-level=high \\"
+		echo "            --all"
+
+		/opt/coverity/bin/cov-analyze --dir=./cov \
+					--wait-for-license \
+					--aggressiveness-level=high \
+					--all
+	else
+		echo "cov-analyze --dir=./cov \\"
+		echo "            --wait-for-license \\"
+		echo "            --aggressiveness-level=$level"
+
+		/opt/coverity/bin/cov-analyze --dir=./cov \
+					--wait-for-license \
+					--aggressiveness-level=$level
+	fi
+
+	mkdir -p $OUTPUTDIR/cov/$level/html
+	echo "Formating HTML output"
+	/opt/coverity/bin/cov-format-errors \
+		--dir=./cov \
+		--html-output=$OUTPUTDIR/cov/$level/html
+
+	echo "Formating text output"
+	/opt/coverity/bin/cov-format-errors \
+		--dir=./cov \
+		--emacs-style &>$OUTPUTDIR/cov/$level/text
+
+	echo "Formating json output"
+	/opt/coverity/bin/cov-format-errors \
+		--dir=./cov \
+		--json-output-v6=$OUTPUTDIR/cov/$level/json
+}
+
 echo "invoked with: $@"
 
 while getopts ":nic" opt; do
@@ -54,22 +98,12 @@ if [ $INTERACTIVE -eq 0 ]; then
 		echo
 	fi
 	echo "cov-build --dir=./cov make..."
-	/opt/coverity/bin/cov-build --dir=$OUTPUTDIR/cov make
-	echo "cov-analyze --dir=./cov --wait-for-license"
-	/opt/coverity/bin/cov-analyze --dir=$OUTPUTDIR/cov --wait-for-license
-	mkdir $OUTPUTDIR/cov/html
-	echo "Formating HTML output"
-	/opt/coverity/bin/cov-format-errors \
-		--dir=$OUTPUTDIR/cov \
-		--html-output=$OUTPUTDIR/cov/html
-	echo "Formating text output"
-	/opt/coverity/bin/cov-format-errors \
-		--dir=$OUTPUTDIR/cov \
-		--emacs-style
-	echo "Formating json output"
-	/opt/coverity/bin/cov-format-errors \
-		--dir=$OUTPUTDIR/cov \
-		--json-output-v6=$OUTPUTDIR/cov/json
+	/opt/coverity/bin/cov-build --dir=./cov make
+
+	run_coverity_analysis "low"
+	run_coverity_analysis "medium"
+	run_coverity_analysis "high"
+	run_coverity_analysis "custom"
 
 	chmod -R a+w $OUTPUTDIR/cov
 else
